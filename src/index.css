@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --figma-bg: #1e1e1e;
+  --figma-surface: #2c2c2c;
+  --figma-border: #404040;
+  --figma-text: #ffffff;
+  --figma-text-secondary: #adadad;
+  --figma-hover: #3e3e3e;
+}
+
+* {
+  border-color: var(--figma-border);
+}
+
+body {
+  background-color: var(--figma-bg);
+  color: var(--figma-text);
+}

@@ -1,0 +1,35 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="bg-gray-100">
+    <ActionBar title="Embroidery & Quilting Studio" class="bg-purple-600 text-white" />
+    
+    <GridLayout rows="*, auto" class="p-4">
+        <ScrollView row="0">
+            <StackLayout>
+                <!-- Convert Files Section -->
+                <Label text="Convert Files" class="text-2xl font-bold mb-2 text-purple-800" />
+                <Button text="Import Image" tap="{{ onSelectImage }}" class="m-1 bg-purple-500 text-white font-semibold" />
+
+                <!-- Pattern Designer Section -->
+                <Label text="Pattern Designer" class="text-2xl font-bold mb-2 text-purple-800" />
+                <GridLayout columns="*, *" class="mb-6">
+                    <Button text="New Quilt Pattern" tap="{{ onNewQuiltPattern }}" class="m-1 bg-purple-500 text-white font-semibold" col="0" />
+                    <Button text="New Embroidery" tap="{{ onNewEmbroidery }}" class="m-1 bg-purple-500 text-white font-semibold" col="1" />
+                </GridLayout>
+
+                <!-- Recent Projects -->
+                <Label text="Recent Projects" class="text-2xl font-bold mb-2 text-purple-800" />
+                <ListView items="{{ recentProjects }}" class="list-group" height="200">
+                    <ListView.itemTemplate>
+                        <GridLayout columns="auto, *, auto" class="p-2 border-b border-gray-200">
+                            <Image src="{{ icon }}" width="40" height="40" class="rounded" col="0" />
+                            <StackLayout col="1" class="ml-2">
+                                <Label text="{{ name }}" class="font-semibold" />
+                                <Label text="{{ date }}" class="text-sm text-gray-500" />
+                            </StackLayout>
+                            <Label text="›" class="text-2xl text-gray-400" col="2" />
+                        </GridLayout>
+                    </ListView.itemTemplate>
+                </ListView>
+            </StackLayout>
+        </ScrollView>
+    </GridLayout>
+</Page>

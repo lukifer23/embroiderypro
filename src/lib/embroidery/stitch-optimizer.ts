@@ -4,28 +4,23 @@ export class StitchOptimizer {
   // Adapted from Ink/Stitch's stitch planning
   static optimizeStitches(stitches: StitchPoint[]): StitchPoint[] {
     if (stitches.length <= 2) return stitches;
-
     const optimized: StitchPoint[] = [];
     const minLength = 0.3; // mm
     const maxLength = 12.1; // mm
     let lastStitch = stitches[0];
     optimized.push(lastStitch);
-
     for (let i = 1; i < stitches.length; i++) {
       const stitch = stitches[i];
       const distance = this.distance(lastStitch, stitch);
-
       // Skip too-short stitches
       if (distance < minLength && stitch.type === 'normal') {
         continue;
       }
-
       // Split long stitches
       if (distance > maxLength && stitch.type === 'normal') {
         const steps = Math.ceil(distance / maxLength);
         const dx = (stitch.x - lastStitch.x) / steps;
         const dy = (stitch.y - lastStitch.y) / steps;
-
         for (let j = 1; j < steps; j++) {
           optimized.push({
             x: lastStitch.x + dx * j,
@@ -35,11 +30,9 @@ export class StitchOptimizer {
           });
         }
       }
-
       optimized.push(stitch);
       lastStitch = stitch;
     }
-
     return this.removeRedundantJumps(optimized);
   }
 

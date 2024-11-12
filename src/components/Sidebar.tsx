@@ -23,6 +23,7 @@ const shapes = [
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { 
     fabricCanvas,

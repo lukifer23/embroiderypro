@@ -16,16 +16,16 @@ export function sobelEdgeDetection(imageData: ImageData): {
 
       for (let i = -1; i <= 1; i++) {
         for (let j = -1; j <= 1; j++) {
-          const idx = ((y + i) * width + (x + j)) * 4;
+          const idx = ((y + i) * width + (x + j));
           const kernelIdx = (i + 1) * 3 + (j + 1);
-          gx += imageData.data[idx] * sobelX[kernelIdx];
-          gy += imageData.data[idx] * sobelY[kernelIdx];
+          gx += imageData.data[idx * 4] * sobelX[kernelIdx];
+          gy += imageData.data[idx * 4] * sobelY[kernelIdx];
         }
       }
 
-      const idx = y * width + x;
-      magnitude[idx] = Math.sqrt(gx * gx + gy * gy);
-      direction[idx] = Math.atan2(gy, gx);
+      const currentIdx = y * width + x;
+      magnitude[currentIdx] = Math.sqrt(gx * gx + gy * gy);
+      direction[currentIdx] = Math.atan2(gy, gx);
     }
   }
 
@@ -34,27 +34,27 @@ export function sobelEdgeDetection(imageData: ImageData): {
 
 export function nonMaximumSuppression(
   magnitude: Float32Array,
-  direction: Float32Array
+  direction: Float32Array,
+  width: number,
+  height: number
 ): Float32Array {
-  const width = Math.sqrt(magnitude.length);
-  const height = width;
   const result = new Float32Array(width * height);
 
   for (let y = 1; y < height - 1; y++) {
     for (let x = 1; x < width - 1; x++) {
       const idx = y * width + x;
-      const angle = direction[idx] * 180 / Math.PI;
+      const angle = (direction[idx] * 180) / Math.PI;
       const mag = magnitude[idx];
 
-      let n1, n2;
+      let n1 = 0, n2 = 0;
 
-      if (angle < 22.5 || angle > 157.5) {
+      if ((angle >= -22.5 && angle <= 22.5) || (angle >= 157.5 || angle <= -157.5)) {
         n1 = magnitude[idx - 1];
         n2 = magnitude[idx + 1];
-      } else if (angle < 67.5) {
+      } else if ((angle > 22.5 && angle < 67.5) || (angle > -157.5 && angle < -112.5)) {
         n1 = magnitude[idx - width + 1];
         n2 = magnitude[idx + width - 1];
-      } else if (angle < 112.5) {
+      } else if ((angle >= 67.5 && angle <= 112.5) || (angle >= -112.5 && angle <= -67.5)) {
         n1 = magnitude[idx - width];
         n2 = magnitude[idx + width];
       } else {
@@ -62,7 +62,11 @@ export function nonMaximumSuppression(
         n2 = magnitude[idx + width + 1];
       }
 
-      result[idx] = (mag >= n1 && mag >= n2) ? mag : 0;
+      if (mag >= n1 && mag >= n2) {
+        result[idx] = mag;
+      } else {
+        result[idx] = 0;
+      }
     }
   }
 

@@ -48,30 +48,21 @@ export class EmbroideryConverter {
         throw new ProcessingError('Failed to generate stitches from contours');
       }
 
-      // 5. Create pattern
+      // 5. Optimize stitches
+      const optimizedStitches = StitchOptimizer.optimizeStitches(stitches);
+
+      // 6. Create pattern
       const pattern: StitchPattern = {
-        stitches,
-        colors: [settings.color],
-        dimensions: {
-          width: settings.width,
-          height: settings.height
-        },
-        metadata: {
-          name: 'Converted Pattern',
-          date: new Date().toISOString(),
-          format: 'internal'
-        }
+        stitches: optimizedStitches,
+        width: settings.width,
+        height: settings.height,
+        colors: [settings.color]
       };
 
-      // 6. Optimize pattern
-      return StitchOptimizer.optimizePattern(pattern);
-
+      return pattern;
     } catch (error) {
-      console.error('Conversion error:', error);
-      if (error instanceof ProcessingError) {
-        throw error;
-      }
-      throw new ProcessingError('Failed to convert image', error as Error);
+      console.error('Error during conversion:', error);
+      throw new ProcessingError('Image conversion failed', error);
     }
   }
 }

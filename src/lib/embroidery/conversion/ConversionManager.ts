@@ -1,33 +1,16 @@
-import { ProcessingError, StitchPattern } from '../types';
-import { ConversionPipeline } from './Pipeline';
+import { ConversionPipeline } from './ConversionPipeline';
+import { ProcessingError } from './errors';
+import { StitchPattern, ProcessingSettings } from './types';
 
 export class ConversionManager {
-  private progress: number = 0;
   private stage: string = '';
-  private error: Error | null = null;
+  private progress: number = 0;
 
-  async convertImage(params: {
+  async convert(params: {
     imageData: ImageData;
-    settings: {
-      width: number;
-      height: number;
-      density: number;
-      angle: number;
-      underlay: boolean;
-      pullCompensation: number;
-      color: string;
-    };
+    settings: ProcessingSettings;
   }): Promise<StitchPattern> {
     try {
-      // Input validation
-      if (!params.imageData?.data) {
-        throw new ProcessingError('No image data provided');
-      }
-
-      if (params.imageData.width === 0 || params.imageData.height === 0) {
-        throw new ProcessingError('Invalid image dimensions');
-      }
-
       // Log initial parameters
       console.log('Starting conversion with settings:', {
         width: params.imageData.width,
@@ -81,52 +64,31 @@ export class ConversionManager {
           hasData: Boolean(params.imageData?.data)
         }
       });
-
       if (error instanceof ProcessingError) {
         throw error;
+      } else {
+        throw new ProcessingError('An unexpected error occurred during conversion', error);
       }
-      
-      throw new ProcessingError(
-        'Failed to convert image. Please try again with different settings or a different image.',
-        error as Error
-      );
     }
   }
 
-  private sanitizeSettings(settings: any) {
-    const sanitized = {
+  private sanitizeSettings(settings: ProcessingSettings): ProcessingSettings {
+    return {
+      ...settings,
       width: Math.max(10, Math.min(1000, settings.width)),
       height: Math.max(10, Math.min(1000, settings.height)),
       density: Math.max(1, Math.min(5, settings.density)),
-      angle: ((settings.angle % 360) + 360) % 360,
-      underlay: Boolean(settings.underlay),
+      fillAngle: ((settings.fillAngle % 360) + 360) % 360,
+      useUnderlay: Boolean(settings.useUnderlay),
       pullCompensation: Math.max(0, Math.min(100, settings.pullCompensation)),
       color: settings.color?.match(/^#[0-9A-Fa-f]{6}$/) ? settings.color : '#000000',
       edgeThreshold: Math.max(64, Math.min(192, settings.edgeThreshold || 128))
-    };
-
-    // Log any values that were adjusted
-    Object.entries(sanitized).forEach(([key, value]) => {
-      if (value !== settings[key]) {
-        console.log(`Adjusted ${key} from ${settings[key]} to ${value}`);
-      }
-    });
-
-    return sanitized;
-  }
-
-  getProgress(): { progress: number; stage: string; error: Error | null } {
-    return {
-      progress: this.progress,
-      stage: this.stage,
-      error: this.error
     };
   }
 
   private updateProgress(stage: string, progress: number) {
     this.stage = stage;
     this.progress = progress;
-    this.error = null;
     console.log(`Conversion progress: ${stage} - ${progress}%`);
   }
 }

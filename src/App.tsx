@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import TopBar from './components/TopBar';
 import Sidebar from './components/Sidebar';
-import Canvas from './components/Canvas';
+import { Canvas } from './components/canvas';
 import { DesignProvider } from './contexts/DesignContext';
 
 export default function App() {
